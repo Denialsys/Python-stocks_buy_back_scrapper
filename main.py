@@ -2,7 +2,9 @@
     Author: Jenver I.
 
     Currently for logging the frequency of company's significant news
-    on a given date range.
+    on a given date range. Can be used to scrape for:
+        - Buy-backs
+        - Dividends
 
     An example of web scrapper
 '''
@@ -108,6 +110,8 @@ def gather_reports(json_data, target_report):
     '''
 
     lookup_keyword = ''
+    num_of_entries = 0
+    collected_reports = []
     filename = f'{target_company_code}-no data.log'
 
     if target_report == 'buybacks':
@@ -120,9 +124,12 @@ def gather_reports(json_data, target_report):
     try:
         with open(filename, "w") as file:
 
+            # for idx in json_data.keys():
+            #     if lookup_keyword in json_data[idx].get('newsHeader'):
+
             for idx in json_data.keys():
                 if lookup_keyword in json_data[idx].get('newsHeader'):
-
+                    num_of_entries += 1
                     ## Construct the data
                     report_data = '{0} {1}\n{2}\n{3}\n\n'.format(
                         json_data[idx].get("newsdate"),
@@ -130,10 +137,13 @@ def gather_reports(json_data, target_report):
                         json_data[idx].get("newsHeader"),
                         json_data[idx].get("newsurl")
                     )
-
+                    collected_reports.append(report_data)
                     ## Save to the log file the result
-                    file.writelines(report_data)
+
                     print(report_data)
+
+            collected_reports.insert(0, f'Total of {num_of_entries} entries collected\n\n')
+            file.writelines(collected_reports)
 
     except Exception as e:
         print(f'Error encountered during extraction of data {e.args}')
